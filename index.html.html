@@ -1,0 +1,2029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pretty Pink — Digital Memory Surprise</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Kalam:wght@400;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-scrap: #f3efe6;
+      --pink-card: #f9c7d8;
+      --pink-card-2: #f4b2ca;
+      --pink-hot: #ff69a1;
+      --pink-deep: #d9487d;
+      --btn-plum: #b58398;
+      --btn-plum-dark: #8e5f73;
+      --ink: #3c2932;
+      --muted: #7a5c68;
+      --shadow: 0 22px 50px rgba(92, 42, 64, 0.16);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--ink);
+      background-color: var(--bg-scrap);
+      background-image:
+        radial-gradient(#d8cfc0 1.15px, transparent 1.15px),
+        radial-gradient(#e4dccf 1.15px, var(--bg-scrap) 1.15px);
+      background-size: 26px 26px;
+      background-position: 0 0, 13px 13px;
+    }
+
+    /* Ambient floating hearts & sparkles */
+    .hearts-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .floating-heart {
+      position: absolute;
+      bottom: -40px;
+      opacity: 0;
+      animation: floatUp linear infinite;
+    }
+
+    @keyframes floatUp {
+      0% { transform: translateY(0) rotate(0deg) scale(0.85); opacity: 0; }
+      15% { opacity: 0.55; }
+      85% { opacity: 0.45; }
+      100% { transform: translateY(-108vh) rotate(25deg) scale(1.15); opacity: 0; }
+    }
+
+    /* Top Navigation Bar */
+    .topbar {
+      position: fixed;
+      top: 12px;
+      left: 16px;
+      right: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      z-index: 30;
+      pointer-events: none;
+      flex-wrap: wrap;
+    }
+
+    .top-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      pointer-events: auto;
+      flex-wrap: wrap;
+    }
+
+    .brand-pill {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(10px);
+      border: 1.5px solid #ead8df;
+      padding: 6px 13px;
+      border-radius: 999px;
+      font-family: 'Kalam', cursive;
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--pink-deep);
+      box-shadow: 0 6px 18px rgba(92, 42, 64, 0.08);
+    }
+
+    .action-pill {
+      border: 1.5px solid #f2aec7;
+      background: #fff5f9;
+      color: var(--pink-deep);
+      font-family: 'Fredoka', sans-serif;
+      font-size: 12.5px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(92, 42, 64, 0.08);
+      transition: transform 0.15s ease, background 0.15s ease;
+    }
+
+    .action-pill:hover {
+      transform: translateY(-1px);
+      background: #ffe8f1;
+    }
+
+    .action-pill.hot {
+      border-color: var(--pink-deep);
+      background: var(--pink-hot);
+      color: #ffffff;
+      box-shadow: 0 6px 16px rgba(217, 72, 125, 0.25);
+    }
+
+    .action-pill.lock-pill {
+      border-color: #8e5f73;
+      background: #fff9fb;
+      color: #6f3b52;
+    }
+
+    .sync-badge {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.88);
+      border: 1px solid #e7c9d5;
+      color: #7a445b;
+    }
+
+    /* Recipient View: hide creator editing controls cleanly */
+    body.recipient-mode .creator-only {
+      display: none !important;
+    }
+
+    .slide-dots {
+      pointer-events: auto;
+      display: flex;
+      gap: 7px;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(8px);
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1.5px solid #ead8df;
+    }
+
+    .s-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #e6c2d0;
+      transition: all 0.3s ease;
+    }
+
+    .s-dot.active {
+      width: 22px;
+      border-radius: 999px;
+      background: var(--pink-hot);
+    }
+
+    /* Full-Screen Slide Deck */
+    .deck {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      z-index: 5;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 72px 16px 22px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateX(48px) scale(0.97);
+      transition: opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+                  transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+                  visibility 0.45s;
+    }
+
+    .slide.prev-exit {
+      opacity: 0;
+      transform: translateX(-48px) scale(0.97);
+    }
+
+    .slide.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(0) scale(1);
+    }
+
+    /* Main Scrapbook Card */
+    .card {
+      position: relative;
+      width: 100%;
+      max-width: 920px;
+      min-height: 460px;
+      max-height: calc(100vh - 102px);
+      background: linear-gradient(150deg, var(--pink-card) 0%, var(--pink-card-2) 100%);
+      border-radius: 26px;
+      box-shadow: var(--shadow), inset 0 0 0 2px rgba(255, 255, 255, 0.65);
+      padding: 28px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow-y: auto;
+    }
+
+    /* Scrapbook Stickers on Slide 1 */
+    .sticker {
+      position: absolute;
+      user-select: none;
+      pointer-events: none;
+      filter: drop-shadow(0 6px 10px rgba(85, 30, 55, 0.16));
+      animation: gentleBob 3.6s ease-in-out infinite;
+    }
+
+    @keyframes gentleBob {
+      0%, 100% { transform: translateY(0px) rotate(var(--rot, 0deg)); }
+      50% { transform: translateY(-6px) rotate(calc(var(--rot, 0deg) + 2deg)); }
+    }
+
+    .st-lily-tl { top: -14px; left: -12px; width: 112px; --rot: -14deg; }
+    .st-lily-br { bottom: -16px; right: -12px; width: 116px; --rot: 16deg; animation-delay: 0.7s; }
+    .st-bow { top: 96px; left: -14px; width: 78px; --rot: -12deg; animation-delay: 0.4s; }
+    .st-fav { top: 14px; left: 175px; --rot: -6deg; animation-delay: 0.2s; }
+    .st-kiss { top: 8px; left: 430px; font-size: 46px; --rot: 10deg; animation-delay: 0.9s; }
+    .st-heart-r { top: 190px; right: 24px; font-size: 56px; --rot: 12deg; animation-delay: 0.5s; }
+    .st-env { bottom: 16px; left: 26px; --rot: -8deg; animation-delay: 1.1s; }
+
+    .fav-badge {
+      background: #efe2cf;
+      color: #6f352b;
+      font-family: 'Kalam', cursive;
+      font-weight: 700;
+      font-size: 16px;
+      padding: 5px 12px;
+      border-radius: 10px;
+      border: 1.5px dashed #b98977;
+      display: inline-block;
+    }
+
+    .letter-scrap {
+      background: #fbf5ea;
+      color: #6a4c56;
+      font-family: 'Kalam', cursive;
+      font-size: 13px;
+      line-height: 1.25;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid #e7d7c3;
+      max-width: 155px;
+    }
+
+    /* Slide 1 Intro Layout */
+    .intro-grid {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 26px;
+      align-items: center;
+      z-index: 2;
+    }
+
+    .digi-cam {
+      position: relative;
+      background: linear-gradient(165deg, #dcd7d2 0%, #c4beb8 55%, #b2aba4 100%);
+      border-radius: 26px;
+      padding: 16px 18px;
+      box-shadow:
+        0 14px 28px rgba(68, 36, 50, 0.22),
+        inset 0 2px 3px rgba(255, 255, 255, 0.75),
+        inset 0 -4px 8px rgba(70, 62, 58, 0.35);
+      border: 2px solid #e7e2dc;
+      display: grid;
+      grid-template-columns: 1fr 94px;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .cam-lcd {
+      background: #241d22;
+      border-radius: 12px;
+      padding: 5px;
+      border: 3px solid #8f8882;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.6);
+      aspect-ratio: 4 / 3;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .cam-lcd img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 8px;
+      display: block;
+    }
+
+    .cam-controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .cam-wheel {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #e8e3dd, #b4aea8);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.22), inset 0 1px 2px #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: #5c5550;
+    }
+
+    .cam-shutter {
+      background: #ece7e1;
+      color: #4f4844;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 5px 10px;
+      border-radius: 8px;
+      border: 1px solid #9d9690;
+      box-shadow: 0 3px 0 #8b847e;
+    }
+
+    .cam-tulip {
+      position: absolute;
+      right: -14px;
+      bottom: -16px;
+      font-size: 62px;
+      transform: rotate(12deg);
+      filter: drop-shadow(0 8px 12px rgba(60, 20, 40, 0.22));
+    }
+
+    .intro-right {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .surprise-title {
+      font-family: 'Fredoka', sans-serif;
+      font-weight: 700;
+      font-size: clamp(32px, 4.6vw, 50px);
+      line-height: 1.03;
+      color: #ff77a9;
+      -webkit-text-stroke: 1.5px #e85890;
+      text-shadow: 0 4px 0 #c94479, 0 8px 18px rgba(180, 45, 98, 0.25);
+      letter-spacing: 0.5px;
+    }
+
+    .choice-row {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+      position: relative;
+      min-height: 58px;
+    }
+
+    .btn-3d {
+      border: none;
+      cursor: pointer;
+      font-family: 'Fredoka', sans-serif;
+      font-weight: 700;
+      font-size: 20px;
+      letter-spacing: 0.5px;
+      padding: 12px 30px;
+      border-radius: 999px;
+      color: #ffffff;
+      text-decoration: underline;
+      text-underline-offset: 4px;
+      background: linear-gradient(180deg, #cf9eb2 0%, var(--btn-plum) 52%, var(--btn-plum-dark) 100%);
+      box-shadow:
+        0 6px 0 #6e4556,
+        0 12px 20px rgba(95, 42, 66, 0.28),
+        inset 0 2px 3px rgba(255, 255, 255, 0.65);
+      transition: transform 0.14s ease, box-shadow 0.14s ease;
+    }
+
+    .btn-3d:hover { transform: translateY(-2px); }
+    .btn-3d:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 #6e4556, 0 5px 10px rgba(95, 42, 66, 0.25);
+    }
+
+    .no-tease {
+      font-family: 'Kalam', cursive;
+      font-size: 16px;
+      color: var(--pink-deep);
+      min-height: 22px;
+      font-weight: 700;
+    }
+
+    /* Slide 2: 4-Digit PIN */
+    .pin-box {
+      width: 100%;
+      max-width: 390px;
+      background: rgba(255, 255, 255, 0.86);
+      backdrop-filter: blur(10px);
+      border-radius: 24px;
+      padding: 24px 24px;
+      text-align: center;
+      box-shadow: 0 14px 30px rgba(120, 48, 80, 0.14);
+      border: 2px solid rgba(255, 255, 255, 0.9);
+    }
+
+    .pin-box h2 {
+      font-family: 'Fredoka', sans-serif;
+      color: var(--pink-deep);
+      font-size: 26px;
+      margin-bottom: 4px;
+    }
+
+    .pin-sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    .pin-slots {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .pin-slot {
+      width: 50px;
+      height: 56px;
+      border-radius: 14px;
+      background: #fff;
+      border: 2px solid #f0b6cc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 24px;
+      color: var(--pink-deep);
+      box-shadow: inset 0 2px 6px rgba(217, 72, 125, 0.08);
+    }
+
+    .pin-slot.filled {
+      border-color: var(--pink-hot);
+      background: #fff0f6;
+      transform: scale(1.04);
+    }
+
+    .pin-msg {
+      min-height: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--pink-deep);
+      margin-bottom: 12px;
+    }
+
+    .shake { animation: shakeX 0.36s ease; }
+
+    @keyframes shakeX {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-8px); }
+      75% { transform: translateX(8px); }
+    }
+
+    .keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .key-btn {
+      padding: 11px 0;
+      border-radius: 14px;
+      border: 1.5px solid #f2bfd2;
+      background: #ffffff;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 19px;
+      color: var(--ink);
+      cursor: pointer;
+      box-shadow: 0 3px 0 #e6a9c0;
+      transition: transform 0.1s ease, background 0.15s;
+    }
+
+    .key-btn:hover { background: #fff4f8; }
+    .key-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #e6a9c0; }
+
+    /* Slide 3: Envelope & Custom Letter */
+    .letter-stage {
+      width: 100%;
+      max-width: 680px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .premium-envelope-wrap {
+      perspective: 900px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .premium-envelope {
+      position: relative;
+      width: 310px;
+      height: 196px;
+      background: linear-gradient(160deg, #fff6f9 0%, #fce1eb 100%);
+      border-radius: 16px;
+      border: 2px solid #f0adc6;
+      box-shadow:
+        0 18px 34px rgba(126, 44, 78, 0.2),
+        inset 0 0 0 2px rgba(255, 255, 255, 0.8);
+      overflow: visible;
+      transition: transform 0.28s ease, box-shadow 0.28s ease;
+    }
+
+    .premium-envelope-wrap:hover .premium-envelope {
+      transform: translateY(-4px) scale(1.015);
+      box-shadow: 0 22px 40px rgba(126, 44, 78, 0.26);
+    }
+
+    .env-liner {
+      position: absolute;
+      inset: 8px;
+      border-radius: 12px;
+      background: repeating-linear-gradient(
+        45deg,
+        rgba(255, 130, 178, 0.14),
+        rgba(255, 130, 178, 0.14) 10px,
+        rgba(255, 255, 255, 0.45) 10px,
+        rgba(255, 255, 255, 0.45) 20px
+      );
+      border: 1px dashed #e99ab8;
+    }
+
+    .env-pocket-left {
+      position: absolute;
+      inset: 0;
+      clip-path: polygon(0 0, 54% 52%, 0 100%);
+      background: linear-gradient(135deg, #f8c6d8 0%, #eeabc4 100%);
+      border-radius: 16px 0 0 16px;
+      z-index: 2;
+    }
+
+    .env-pocket-right {
+      position: absolute;
+      inset: 0;
+      clip-path: polygon(100% 0, 46% 52%, 100% 100%);
+      background: linear-gradient(225deg, #f8c6d8 0%, #eeabc4 100%);
+      border-radius: 0 16px 16px 0;
+      z-index: 2;
+    }
+
+    .env-pocket-bottom {
+      position: absolute;
+      inset: 0;
+      clip-path: polygon(0 100%, 50% 44%, 100% 100%);
+      background: linear-gradient(180deg, #fce2ec 0%, #f3b5cc 100%);
+      border-radius: 0 0 16px 16px;
+      z-index: 3;
+      box-shadow: inset 0 2px 6px rgba(255,255,255,0.7);
+    }
+
+    .env-flap {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 112px;
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+      background: linear-gradient(180deg, #ffd9e7 0%, #f6b6ce 100%);
+      transform-origin: top center;
+      transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+      z-index: 4;
+      filter: drop-shadow(0 4px 6px rgba(130, 40, 75, 0.14));
+    }
+
+    .premium-envelope.opened .env-flap {
+      transform: rotateX(172deg);
+      z-index: 1;
+    }
+
+    .wax-seal {
+      position: absolute;
+      top: 78px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 32% 28%, #ff7aa9 0%, #d93b74 72%, #a82354 100%);
+      border: 2px solid #ffd4e4;
+      box-shadow:
+        0 6px 14px rgba(138, 26, 67, 0.35),
+        inset 0 2px 4px rgba(255, 255, 255, 0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      z-index: 5;
+      transition: transform 0.4s ease, opacity 0.35s ease;
+    }
+
+    .premium-envelope.opened .wax-seal {
+      transform: translateX(-50%) scale(0.75);
+      opacity: 0.2;
+    }
+
+    .env-hint-tag {
+      font-family: 'Kalam', cursive;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--pink-deep);
+      background: rgba(255, 255, 255, 0.85);
+      padding: 4px 14px;
+      border-radius: 999px;
+      border: 1px solid #f2bdd1;
+    }
+
+    .letter-paper {
+      width: 100%;
+      background: #fffdf9;
+      border-radius: 18px;
+      padding: 24px 28px;
+      border: 1.5px solid #efd8e2;
+      box-shadow: 0 12px 26px rgba(110, 42, 70, 0.12);
+      background-image: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 29px,
+        rgba(235, 185, 205, 0.35) 30px
+      );
+      display: none;
+      animation: popLetter 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .letter-paper.open { display: block; }
+
+    @keyframes popLetter {
+      from { opacity: 0; transform: translateY(16px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .letter-paper h3 {
+      font-family: 'Kalam', cursive;
+      font-size: 24px;
+      color: var(--pink-deep);
+      margin-bottom: 10px;
+    }
+
+    .letter-body {
+      font-family: 'Kalam', cursive;
+      font-size: 19px;
+      line-height: 30px;
+      color: #462d37;
+      white-space: pre-line;
+    }
+
+    /* Slide 4: 15 Favorite Memories */
+    .gallery-wrap {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .gallery-head { text-align: center; }
+
+    .gallery-head h2 {
+      font-family: 'Fredoka', sans-serif;
+      font-size: clamp(24px, 3.6vw, 36px);
+      color: #ff6ea4;
+      -webkit-text-stroke: 1px #e4558b;
+      text-shadow: 0 3px 0 #c94276;
+    }
+
+    .gallery-head p {
+      font-family: 'Kalam', cursive;
+      font-size: 16px;
+      color: var(--ink);
+    }
+
+    .mem-grid {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: center;
+    }
+
+    .mem-cam {
+      background: linear-gradient(165deg, #dcd7d2, #bab4ae);
+      border-radius: 22px;
+      padding: 14px 16px;
+      border: 2px solid #ebe6e0;
+      box-shadow: 0 12px 24px rgba(70, 35, 50, 0.18);
+    }
+
+    .mem-cam-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #4a433f;
+    }
+
+    .counter-badge {
+      background: #c5cec0;
+      border: 1.5px solid #8a9485;
+      padding: 2px 9px;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 13px;
+      color: #242b21;
+    }
+
+    .mem-cam-body {
+      display: grid;
+      grid-template-columns: 1fr 84px;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .mem-screen {
+      aspect-ratio: 4 / 3;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 3px solid #7d7670;
+      background: #221b20;
+    }
+
+    .mem-screen img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .shutter-btn {
+      background: #f3eee8;
+      border: 1.5px solid #8e8780;
+      border-radius: 10px;
+      padding: 8px 6px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #3e3733;
+      cursor: pointer;
+      box-shadow: 0 3px 0 #7b746d;
+    }
+
+    .shutter-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #7b746d; }
+
+    .polaroid-card {
+      background: #ffffff;
+      padding: 12px 12px 18px;
+      border-radius: 10px;
+      box-shadow: 0 14px 28px rgba(85, 32, 56, 0.22);
+      transform: rotate(2.5deg);
+      cursor: pointer;
+      position: relative;
+      max-width: 320px;
+      width: 100%;
+      margin: 0 auto;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .polaroid-card:hover {
+      transform: rotate(0deg) scale(1.03);
+      box-shadow: 0 18px 36px rgba(217, 72, 125, 0.32);
+    }
+
+    .washi-tape {
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%) rotate(-3deg);
+      width: 74px;
+      height: 20px;
+      background: rgba(255, 165, 198, 0.85);
+      border-radius: 3px;
+    }
+
+    .polaroid-img-wrap {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      overflow: hidden;
+      border-radius: 5px;
+      background: #f8e3ec;
+    }
+
+    .polaroid-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .polaroid-cap {
+      margin-top: 10px;
+      text-align: center;
+      font-family: 'Kalam', cursive;
+      font-size: 17px;
+      font-weight: 700;
+      color: #c93b72;
+    }
+
+    .zoom-hint {
+      position: absolute;
+      bottom: 54px;
+      right: 18px;
+      background: rgba(255, 255, 255, 0.92);
+      color: var(--pink-deep);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 9px;
+      border-radius: 999px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.14);
+    }
+
+    .dots-15 {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .p-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #e59eb8;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .p-dot.active {
+      width: 18px;
+      border-radius: 999px;
+      background: var(--pink-deep);
+    }
+
+    .nav-controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .pill-btn {
+      border: none;
+      cursor: pointer;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 999px;
+      background: #ffffff;
+      color: var(--ink);
+      box-shadow: 0 4px 12px rgba(95, 42, 66, 0.14);
+      transition: transform 0.15s ease;
+    }
+
+    .pill-btn:hover { transform: translateY(-2px); }
+
+    .pill-btn.primary {
+      background: linear-gradient(180deg, #cf9eb2, var(--btn-plum-dark));
+      color: #fff;
+      padding: 9px 20px;
+      box-shadow: 0 4px 0 #663d4e, 0 8px 16px rgba(95, 42, 66, 0.24);
+    }
+
+    /* Slide 5: Final Note */
+    .final-card {
+      text-align: center;
+      max-width: 560px;
+      background: rgba(255, 255, 255, 0.86);
+      backdrop-filter: blur(10px);
+      padding: 34px 28px;
+      border-radius: 24px;
+      box-shadow: 0 14px 32px rgba(110, 42, 70, 0.14);
+    }
+
+    .final-card h2 {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 32px;
+      color: var(--pink-deep);
+      margin-bottom: 10px;
+    }
+
+    .final-card p {
+      font-family: 'Kalam', cursive;
+      font-size: 19px;
+      line-height: 1.5;
+      color: #4a303a;
+      margin-bottom: 22px;
+    }
+
+    /* Modals */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(28, 12, 20, 0.72);
+      backdrop-filter: blur(6px);
+      z-index: 90;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-backdrop.open { display: flex; }
+
+    .mgr-card {
+      width: 100%;
+      max-width: 780px;
+      max-height: 86vh;
+      background: #fff9fb;
+      border-radius: 22px;
+      border: 2px solid #f3bdd1;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .editor-card {
+      width: 100%;
+      max-width: 520px;
+      max-height: 86vh;
+      background: #fff9fb;
+      border-radius: 22px;
+      border: 2px solid #f3bdd1;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .mgr-head {
+      padding: 15px 20px;
+      background: #ffe6ef;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1.5px solid #f4c6d7;
+    }
+
+    .mgr-head h3 {
+      font-family: 'Fredoka', sans-serif;
+      color: var(--pink-deep);
+      font-size: 20px;
+    }
+
+    .mgr-body {
+      padding: 16px 20px;
+      overflow-y: auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 12px;
+    }
+
+    .editor-body {
+      padding: 18px 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .field-group label {
+      display: block;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 13px;
+      color: var(--pink-deep);
+      margin-bottom: 5px;
+    }
+
+    .field-input, .field-textarea {
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: 10px;
+      border: 1.5px solid #e7bed0;
+      background: #ffffff;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14px;
+      color: var(--ink);
+    }
+
+    .field-textarea {
+      font-family: 'Kalam', cursive;
+      font-size: 17px;
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .slot-item {
+      background: #ffffff;
+      border: 1.5px solid #f0cad8;
+      border-radius: 14px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .slot-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .slot-thumb {
+      width: 56px;
+      height: 44px;
+      border-radius: 8px;
+      object-fit: cover;
+      border: 1px solid #ecc0d1;
+      flex-shrink: 0;
+    }
+
+    .slot-label {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 13px;
+      color: var(--ink);
+    }
+
+    .slot-choose-btn {
+      background: #fff0f6;
+      border: 1.5px solid #eb9bb9;
+      color: var(--pink-deep);
+      font-family: 'Fredoka', sans-serif;
+      font-size: 12px;
+      padding: 5px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .slot-choose-btn:hover { background: #ffe0ec; }
+
+    .slot-cap-input {
+      width: 100%;
+      padding: 6px 8px;
+      border-radius: 8px;
+      border: 1px solid #e4bccb;
+      font-family: 'Kalam', cursive;
+      font-size: 13px;
+      color: var(--ink);
+    }
+
+    .mgr-foot {
+      padding: 12px 20px;
+      background: #fff2f7;
+      border-top: 1.5px solid #f4c6d7;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    /* Custom Toast Notification (no browser alerts) */
+    .toast-banner {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(24px);
+      background: #3c2932;
+      color: #ffffff;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 18px;
+      border-radius: 999px;
+      box-shadow: 0 12px 28px rgba(45, 18, 30, 0.35);
+      border: 1.5px solid #ff8fb8;
+      z-index: 120;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+
+    .toast-banner.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Full-View Lightbox */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(25, 10, 18, 0.88);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+
+    .lightbox.open {
+      display: flex;
+      opacity: 1;
+    }
+
+    .lb-box {
+      position: relative;
+      max-width: 820px;
+      width: 100%;
+      background: #fff9fb;
+      border-radius: 20px;
+      padding: 16px 16px 20px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+      text-align: center;
+      animation: popLetter 0.28s ease;
+    }
+
+    .lb-img-box {
+      width: 100%;
+      max-height: 68vh;
+      border-radius: 14px;
+      overflow: hidden;
+      background: #1b1116;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .lb-img-box img {
+      max-width: 100%;
+      max-height: 68vh;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      display: block;
+    }
+
+    .lb-footer {
+      margin-top: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .lb-caption {
+      font-family: 'Kalam', cursive;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--pink-deep);
+      flex: 1;
+      text-align: center;
+    }
+
+    .lb-close {
+      position: absolute;
+      top: -14px;
+      right: -14px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      background: var(--pink-hot);
+      color: #fff;
+      font-size: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+    }
+
+    @media (max-width: 760px) {
+      .intro-grid, .mem-grid { grid-template-columns: 1fr; }
+      .card { padding: 20px 16px; min-height: auto; }
+      .st-kiss, .st-fav, .st-bow, .st-env { display: none; }
+      .digi-cam { max-width: 340px; margin: 0 auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="hearts-layer" id="heartsLayer"></div>
+  <input type="file" id="singleSlotInput" accept="image/*" style="display:none" />
+  <input type="file" id="bulkSlotInput" accept="image/*" multiple style="display:none" />
+
+  <header class="topbar">
+    <div class="top-left">
+      <div class="brand-pill">✨ Pretty Pink Memo</div>
+      <button type="button" class="action-pill hot creator-only" id="openMgrBtn">🖼️ Add / Edit 15 Photos</button>
+      <button type="button" class="action-pill creator-only" id="openEditorBtn">✏️ Edit Letter & PIN</button>
+      <button type="button" class="action-pill creator-only" id="saveCloudBtn" title="Save all photos, letter, PIN, and Gift View directly to this live page">☁️ Save to Page</button>
+      <button type="button" class="action-pill lock-pill" id="toggleViewModeBtn" title="Switch between Creator Edit Mode and Clean Recipient Gift View">🎁 Gift View: OFF</button>
+      <span class="sync-badge creator-only" id="syncStatusBadge">Ready</span>
+    </div>
+    <div class="slide-dots" id="slideDots">
+      <span class="s-dot active"></span>
+      <span class="s-dot"></span>
+      <span class="s-dot"></span>
+      <span class="s-dot"></span>
+      <span class="s-dot"></span>
+    </div>
+  </header>
+
+  <main class="deck">
+    <!-- SLIDE 1: INTRO CARD -->
+    <section class="slide active" id="slide-0">
+      <div class="card">
+        <span class="sticker st-lily-tl"><img src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cpath d='M60 12 C75 35 78 55 60 65 C42 55 45 35 60 12Z' fill='%23ff8fb8' stroke='%23d44c7e' stroke-width='2'/%3E%3Cpath d='M98 35 C85 55 72 65 60 65 C65 48 80 38 98 35Z' fill='%23ffa7c7' stroke='%23d44c7e' stroke-width='2'/%3E%3Cpath d='M22 35 C35 55 48 65 60 65 C55 48 40 38 22 35Z' fill='%23ffa7c7' stroke='%23d44c7e' stroke-width='2'/%3E%3Ccircle cx='60' cy='65' r='6' fill='%23ffe066'/%3E%3C/svg%3E" alt=""></span>
+        <span class="sticker st-lily-br"><img src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Cpath d='M60 12 C75 35 78 55 60 65 C42 55 45 35 60 12Z' fill='%23ff8fb8' stroke='%23d44c7e' stroke-width='2'/%3E%3Cpath d='M98 35 C85 55 72 65 60 65 C65 48 80 38 98 35Z' fill='%23ffa7c7' stroke='%23d44c7e' stroke-width='2'/%3E%3Cpath d='M22 35 C35 55 48 65 60 65 C55 48 40 38 22 35Z' fill='%23ffa7c7' stroke='%23d44c7e' stroke-width='2'/%3E%3Ccircle cx='60' cy='65' r='6' fill='%23ffe066'/%3E%3C/svg%3E" alt=""></span>
+        <span class="sticker st-bow"><img src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 70'%3E%3Cpath d='M50 35 C32 10 8 14 14 35 C8 56 32 60 50 35Z' fill='%23f7b2ca' stroke='%23c86d8e' stroke-width='2'/%3E%3Cpath d='M50 35 C68 10 92 14 86 35 C92 56 68 60 50 35Z' fill='%23f7b2ca' stroke='%23c86d8e' stroke-width='2'/%3E%3Crect x='43' y='27' width='14' height='16' rx='5' fill='%23ee97b7' stroke='%23c86d8e' stroke-width='2'/%3E%3C/svg%3E" alt=""></span>
+        <div class="sticker st-fav"><div class="fav-badge">Favorite Person ⤵</div></div>
+        <div class="sticker st-kiss">💋</div>
+        <div class="sticker st-heart-r">🩷</div>
+        <div class="sticker st-env">
+          <div class="letter-scrap">💌 "You are my sun, my moon, and my favorite..."</div>
+        </div>
+
+        <div class="intro-grid">
+          <div class="digi-cam">
+            <div class="cam-lcd">
+              <img id="introCamImg" alt="Favorite Person Preview">
+            </div>
+            <div class="cam-controls">
+              <div class="cam-wheel">◀ ▶</div>
+              <div class="cam-shutter">SHUTTER</div>
+            </div>
+            <div class="cam-tulip">🌷</div>
+          </div>
+
+          <div class="intro-right">
+            <h1 class="surprise-title">DO YOU<br>WANT A<br>SURPRISE??</h1>
+            <div class="choice-row" id="choiceRow">
+              <button class="btn-3d" id="yesBtn">YES !!</button>
+              <button class="btn-3d" id="noBtn">NO!!</button>
+            </div>
+            <div class="no-tease" id="noTease"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: 4-DIGIT PASSWORD -->
+    <section class="slide" id="slide-1">
+      <div class="card">
+        <div class="pin-box" id="pinBox">
+          <h2>Secret 4-Digit Code</h2>
+          <p class="pin-sub">Enter our 4-digit passcode to unlock <span class="creator-only">(Current PIN: <b id="pinHintLabel">1234</b>)</span></p>
+          <div class="pin-slots" id="pinSlots">
+            <div class="pin-slot"></div>
+            <div class="pin-slot"></div>
+            <div class="pin-slot"></div>
+            <div class="pin-slot"></div>
+          </div>
+          <div class="pin-msg" id="pinMsg">Tap numbers below</div>
+          <div class="keypad" id="keypad"></div>
+          <div style="margin-top: 14px;">
+            <button class="pill-btn" onclick="goToSlide(0)">← Back</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 3: ENVELOPE & CUSTOM LETTER -->
+    <section class="slide" id="slide-2">
+      <div class="card">
+        <div class="letter-stage">
+          <div class="premium-envelope-wrap" id="envelopeBtn">
+            <div class="premium-envelope" id="premiumEnvelope">
+              <div class="env-liner"></div>
+              <div class="env-pocket-left"></div>
+              <div class="env-pocket-right"></div>
+              <div class="env-pocket-bottom"></div>
+              <div class="env-flap"></div>
+              <div class="wax-seal">💖</div>
+            </div>
+            <div class="env-hint-tag" id="envStatusLabel">✨ Tap the Wax Seal to Unfold Your Letter ✨</div>
+          </div>
+
+          <div class="letter-paper" id="letterPaper">
+            <h3 id="letterGreeting">My Dearest Favorite Person,</h3>
+            <div class="letter-body" id="letterText">Every moment with you feels like a warm golden hour. Thank you for filling my days with laughter, care, and endless sweet memories. Here are 15 little snapshots of our favorite moments together—happy special day! 💖</div>
+          </div>
+
+          <div class="nav-controls">
+            <button class="pill-btn" onclick="goToSlide(1)">← Passcode</button>
+            <button class="pill-btn creator-only" onclick="openEditorModal()">✏️ Edit Letter</button>
+            <button class="pill-btn primary" onclick="goToSlide(3)">See 15 Photos →</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: 15 FAVORITE MEMORIES + FULL-VIEW POLAROID -->
+    <section class="slide" id="slide-3">
+      <div class="card">
+        <div class="gallery-wrap">
+          <div class="gallery-head">
+            <h2>OUR 15 FAVORITE MEMORIES</h2>
+            <p>Click shutter/arrows to flip • Click Polaroid for Full View 🔍</p>
+          </div>
+
+          <div class="mem-grid">
+            <div class="mem-cam">
+              <div class="mem-cam-top">
+                <span>DIGI-MEMO CAM</span>
+                <span class="counter-badge" id="memCounter">01 / 15</span>
+              </div>
+              <div class="mem-cam-body">
+                <div class="mem-screen">
+                  <img id="camViewImg" alt="Camera view">
+                </div>
+                <button class="shutter-btn" id="shutterBtn">📷 Shutter</button>
+              </div>
+            </div>
+
+            <div class="polaroid-card" id="polaroidCard" title="Click to view full size">
+              <div class="washi-tape"></div>
+              <div class="polaroid-img-wrap">
+                <img id="polaroidImg" alt="Polaroid memory">
+              </div>
+              <div class="zoom-hint">🔍 Full View</div>
+              <div class="polaroid-cap" id="polaroidCap">01. Sweet Beginnings ✨</div>
+            </div>
+          </div>
+
+          <div class="dots-15" id="dots15"></div>
+
+          <div class="nav-controls">
+            <button class="pill-btn" id="prevPhotoBtn">◀ Prev</button>
+            <button class="pill-btn" id="nextPhotoBtn">Next ▶</button>
+            <button class="pill-btn creator-only" onclick="openPhotoManager()">🖼️ Add / Edit 15 Photos</button>
+            <button class="pill-btn primary" onclick="goToSlide(4)">Final Note 💌 →</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: FINAL NOTE -->
+    <section class="slide" id="slide-4">
+      <div class="card">
+        <div class="final-card">
+          <div style="font-size: 44px; margin-bottom: 8px;">🎀🌸💖</div>
+          <h2>Here’s to Many More Memories!</h2>
+          <p>No matter where life takes us, you’ll always be my favorite chapter and my sweetest surprise.</p>
+          <div class="nav-controls">
+            <button class="pill-btn" onclick="goToSlide(3)">← Back to Photos</button>
+            <button class="pill-btn primary" onclick="replayAll()">↻ Replay Surprise</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 15-SLOT PHOTO MANAGER MODAL -->
+  <div class="modal-backdrop" id="photoMgrModal">
+    <div class="mgr-card" onclick="event.stopPropagation()">
+      <div class="mgr-head">
+        <h3>🖼️ Add or Edit Your 15 Photos</h3>
+        <button type="button" class="pill-btn" id="closeMgrBtn">✕ Done</button>
+      </div>
+      <div class="mgr-body" id="mgrSlotsGrid"></div>
+      <div class="mgr-foot">
+        <button type="button" class="pill-btn" id="bulkSelectBtn">📂 Select Multiple Photos at Once</button>
+        <button type="button" class="pill-btn primary" id="saveCloseMgrBtn">Save & View Gallery ✓</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LETTER & PIN EDITOR MODAL -->
+  <div class="modal-backdrop" id="editorModal">
+    <div class="editor-card" onclick="event.stopPropagation()">
+      <div class="mgr-head">
+        <h3>✏️ Edit Letter & 4-Digit PIN</h3>
+        <button type="button" class="pill-btn" id="closeEditorBtn">✕</button>
+      </div>
+      <div class="editor-body">
+        <div class="field-group">
+          <label for="editPinInput">4-Digit Secret PIN</label>
+          <input type="text" id="editPinInput" class="field-input" maxlength="4" inputmode="numeric" value="1234" />
+        </div>
+        <div class="field-group">
+          <label for="editGreetingInput">Letter Greeting</label>
+          <input type="text" id="editGreetingInput" class="field-input" value="My Dearest Favorite Person," />
+        </div>
+        <div class="field-group">
+          <label for="editLetterTextarea">Custom Letter Message</label>
+          <textarea id="editLetterTextarea" class="field-textarea">Every moment with you feels like a warm golden hour. Thank you for filling my days with laughter, care, and endless sweet memories. Here are 15 little snapshots of our favorite moments together—happy special day! 💖</textarea>
+        </div>
+      </div>
+      <div class="mgr-foot">
+        <span id="editorStatus" style="font-size:12px; color:var(--pink-deep); font-weight:600;"></span>
+        <button type="button" class="pill-btn primary" id="saveEditorBtn">Save Changes ✓</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FULL-VIEW LIGHTBOX FOR POLAROID CLICK -->
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true">
+    <div class="lb-box" onclick="event.stopPropagation()">
+      <button class="lb-close" id="lbClose" title="Close (Esc)">✕</button>
+      <div class="lb-img-box">
+        <img id="lbImg" alt="Full view memory">
+      </div>
+      <div class="lb-footer">
+        <button class="pill-btn" id="lbPrev">← Previous</button>
+        <div class="lb-caption" id="lbCaption"></div>
+        <button class="pill-btn" id="lbNext">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-banner" id="toastBanner"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    const toastEl = document.getElementById("toastBanner");
+    let toastTimer = null;
+    function showToast(msg) {
+      if (!toastEl) return;
+      toastEl.textContent = msg;
+      toastEl.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toastEl.classList.remove("show"), 2600);
+    }
+
+    let currentPin = "1234";
+    const syncBadge = document.getElementById("syncStatusBadge");
+
+    function setSyncStatus(text) {
+      if (syncBadge) syncBadge.textContent = text;
+    }
+
+    function makePhoto(title, c1, c2, emoji) {
+      const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='800' height='600' viewBox='0 0 800 600'>
+        <defs>
+          <linearGradient id='g' x1='0' y1='0' x2='1' y2='1'>
+            <stop offset='0%' stop-color='${c1}'/>
+            <stop offset='100%' stop-color='${c2}'/>
+          </linearGradient>
+        </defs>
+        <rect width='800' height='600' fill='url(%23g)'/>
+        <circle cx='150' cy='130' r='90' fill='rgba(255,255,255,0.22)'/>
+        <circle cx='660' cy='470' r='120' fill='rgba(255,255,255,0.18)'/>
+        <text x='400' y='265' text-anchor='middle' font-size='115'>${emoji}</text>
+        <text x='400' y='395' text-anchor='middle' font-family='sans-serif' font-weight='bold' font-size='34' fill='%23ffffff'>${title}</text>
+      </svg>`;
+      return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
+    }
+
+    const MEMORIES = [
+      { cap: "01. Sweet Beginnings ✨", src: makePhoto("Photo 01", "#ff8ab8", "#d9487d", "🌸") },
+      { cap: "02. Golden Hour Smiles ✨", src: makePhoto("Photo 02", "#f59e6c", "#c85a32", "🌇") },
+      { cap: "03. Coffee & Late Talks ☕", src: makePhoto("Photo 03", "#d99b78", "#8c5238", "☕") },
+      { cap: "04. Favorite Outfit Day 👗", src: makePhoto("Photo 04", "#ff9ec4", "#c94b7d", "🎀") },
+      { cap: "05. Rainy Day Cozy Vibes 🌧️", src: makePhoto("Photo 05", "#8ea7d9", "#546da6", "🌧️") },
+      { cap: "06. Little Road Trip 🚗", src: makePhoto("Photo 06", "#f2b866", "#d97e38", "🚗") },
+      { cap: "07. Midnight Laughs 🌙", src: makePhoto("Photo 07", "#9c7ae0", "#5b3fa6", "🌙") },
+      { cap: "08. Flower Bouquet Moment 🌷", src: makePhoto("Photo 08", "#ff85b3", "#c43b6e", "🌷") },
+      { cap: "09. Sunset Walk Together 🌅", src: makePhoto("Photo 09", "#ff9a76", "#d4556a", "🌅") },
+      { cap: "10. Sweet Treats & Cake 🧁", src: makePhoto("Photo 10", "#f7a8c8", "#cf5988", "🧁") },
+      { cap: "11. Candid Camera Shot 📷", src: makePhoto("Photo 11", "#e88cb2", "#a83d6b", "📷") },
+      { cap: "12. Sunlit Window Glow ☀️", src: makePhoto("Photo 12", "#f7c668", "#d68236", "☀️") },
+      { cap: "13. Sparkly Night Out ✨", src: makePhoto("Photo 13", "#b57edc", "#6c3fb5", "✨") },
+      { cap: "14. Warm Hugs & Support 🤍", src: makePhoto("Photo 14", "#f497b6", "#c24872", "🤍") },
+      { cap: "15. Forever Favorite Person 💖", src: makePhoto("Photo 15", "#ff6ea4", "#c72c68", "💖") }
+    ];
+
+    // Floating hearts background
+    const heartsLayer = document.getElementById("heartsLayer");
+    const heartIcons = ["💖", "🌸", "✨", "🩷", "💕"];
+    for (let i = 0; i < 14; i++) {
+      const h = document.createElement("div");
+      h.className = "floating-heart";
+      h.textContent = heartIcons[i % heartIcons.length];
+      h.style.left = (Math.random() * 96) + "%";
+      h.style.animationDuration = (8 + Math.random() * 7) + "s";
+      h.style.animationDelay = (Math.random() * 8) + "s";
+      h.style.fontSize = (14 + Math.random() * 10) + "px";
+      heartsLayer.appendChild(h);
+    }
+
+    // Slide Navigation
+    let currentSlide = 0;
+    const slides = document.querySelectorAll(".slide");
+    const dots = document.querySelectorAll(".s-dot");
+
+    function goToSlide(index) {
+      if (index < 0 || index >= slides.length || index === currentSlide) return;
+      slides[currentSlide].classList.remove("active");
+      slides[currentSlide].classList.add("prev-exit");
+      const oldIdx = currentSlide;
+      setTimeout(() => slides[oldIdx].classList.remove("prev-exit"), 500);
+
+      currentSlide = index;
+      slides[currentSlide].classList.add("active");
+      dots.forEach((d, idx) => d.classList.toggle("active", idx === currentSlide));
+    }
+    window.goToSlide = goToSlide;
+
+    // Slide 1: Intro
+    document.getElementById("introCamImg").src = MEMORIES[14].src;
+    document.getElementById("yesBtn").addEventListener("click", () => goToSlide(1));
+
+    const noBtn = document.getElementById("noBtn");
+    const noTease = document.getElementById("noTease");
+    const teases = [
+      "Oops! Try clicking YES !! 💕",
+      "No is shy today! Tap YES !! 😊",
+      "Are you sure? A surprise awaits! 🎁"
+    ];
+    let teaseIdx = 0;
+
+    function dodgeNo() {
+      noTease.textContent = teases[teaseIdx % teases.length];
+      teaseIdx++;
+      const dx = (Math.random() - 0.5) * 110;
+      const dy = (Math.random() - 0.5) * 40;
+      noBtn.style.transform = `translate(${dx}px, ${dy}px)`;
+    }
+    noBtn.addEventListener("mouseenter", dodgeNo);
+    noBtn.addEventListener("click", dodgeNo);
+
+    // Slide 2: 4-Digit PIN
+    let pinInput = "";
+    const pinSlots = document.querySelectorAll(".pin-slot");
+    const pinMsg = document.getElementById("pinMsg");
+    const pinBox = document.getElementById("pinBox");
+    const keypad = document.getElementById("keypad");
+
+    function renderPinSlots() {
+      pinSlots.forEach((slot, i) => {
+        if (i < pinInput.length) {
+          slot.textContent = "•";
+          slot.classList.add("filled");
+        } else {
+          slot.textContent = "";
+          slot.classList.remove("filled");
+        }
+      });
+    }
+
+    function checkPin() {
+      if (pinInput.length < 4) return;
+      if (pinInput === currentPin) {
+        pinMsg.textContent = "Unlocked with love! 💖";
+        setTimeout(() => {
+          pinInput = "";
+          renderPinSlots();
+          pinMsg.textContent = "Tap numbers below";
+          goToSlide(2);
+        }, 420);
+      } else {
+        pinMsg.textContent = "Wrong code! Try again";
+        pinBox.classList.remove("shake");
+        void pinBox.offsetWidth;
+        pinBox.classList.add("shake");
+        setTimeout(() => {
+          pinInput = "";
+          renderPinSlots();
+        }, 380);
+      }
+    }
+
+    const keys = ["1","2","3","4","5","6","7","8","9","C","0","⌫"];
+    keys.forEach(k => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "key-btn";
+      btn.textContent = k;
+      btn.addEventListener("click", () => {
+        if (k === "C") {
+          pinInput = "";
+          pinMsg.textContent = "Cleared";
+          renderPinSlots();
+        } else if (k === "⌫") {
+          pinInput = pinInput.slice(0, -1);
+          renderPinSlots();
+        } else if (pinInput.length < 4) {
+          pinInput += k;
+          renderPinSlots();
+          checkPin();
+        }
+      });
+      keypad.appendChild(btn);
+    });
+
+    // Slide 3: Envelope
+    document.getElementById("envelopeBtn").addEventListener("click", () => {
+      const env = document.getElementById("premiumEnvelope");
+      env.classList.add("opened");
+      document.getElementById("envStatusLabel").textContent = "💌 Letter Opened With Love";
+      document.getElementById("letterPaper").classList.add("open");
+    });
+
+    // Recipient Gift View Toggle
+    let isRecipientView = false;
+    const toggleViewModeBtn = document.getElementById("toggleViewModeBtn");
+
+    function applyRecipientView(flag) {
+      isRecipientView = Boolean(flag);
+      document.body.classList.toggle("recipient-mode", isRecipientView);
+      toggleViewModeBtn.textContent = isRecipientView ? "🔓 Creator Mode" : "🎁 Gift View: OFF";
+    }
+
+    toggleViewModeBtn.addEventListener("click", async () => {
+      applyRecipientView(!isRecipientView);
+      await saveGiftToCloud(false);
+      showToast(isRecipientView ? "Gift View ON & Saved to Page!" : "Creator Mode ON — Ready to Edit");
+    });
+
+    // Slide 4: 15 Photos
+    let photoIdx = 0;
+    const camViewImg = document.getElementById("camViewImg");
+    const polaroidImg = document.getElementById("polaroidImg");
+    const polaroidCap = document.getElementById("polaroidCap");
+    const memCounter = document.getElementById("memCounter");
+    const dots15 = document.getElementById("dots15");
+    const lightbox = document.getElementById("lightbox");
+    const lbImg = document.getElementById("lbImg");
+    const lbCaption = document.getElementById("lbCaption");
+
+    MEMORIES.forEach((_, idx) => {
+      const d = document.createElement("button");
+      d.type = "button";
+      d.className = "p-dot" + (idx === 0 ? " active" : "");
+      d.title = `Photo ${idx + 1}`;
+      d.addEventListener("click", () => setPhoto(idx));
+      dots15.appendChild(d);
+    });
+
+    function setPhoto(idx) {
+      photoIdx = (idx + MEMORIES.length) % MEMORIES.length;
+      const item = MEMORIES[photoIdx];
+      camViewImg.src = item.src;
+      polaroidImg.src = item.src;
+      polaroidCap.textContent = item.cap;
+      memCounter.textContent = String(photoIdx + 1).padStart(2, "0") + " / 15";
+      document.querySelectorAll(".p-dot").forEach((dot, i) => {
+        dot.classList.toggle("active", i === photoIdx);
+      });
+      document.getElementById("introCamImg").src = MEMORIES[14].src;
+      if (lightbox.classList.contains("open")) {
+        syncLightbox();
+      }
+    }
+
+    setPhoto(0);
+
+    document.getElementById("shutterBtn").addEventListener("click", () => setPhoto(photoIdx + 1));
+    document.getElementById("nextPhotoBtn").addEventListener("click", () => setPhoto(photoIdx + 1));
+    document.getElementById("prevPhotoBtn").addEventListener("click", () => setPhoto(photoIdx - 1));
+
+    // Compress uploaded image smartly so each photo stays light and fast to save
+    function compressImageDataUrl(dataUrl, maxWidth = 720, quality = 0.68) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+          let scale = Math.min(1, maxWidth / (img.width || maxWidth));
+          let w = Math.max(1, Math.round((img.width || 800) * scale));
+          let h = Math.max(1, Math.round((img.height || 600) * scale));
+
+          const canvas = document.createElement("canvas");
+          canvas.width = w;
+          canvas.height = h;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, w, h);
+
+          let out = canvas.toDataURL("image/jpeg", quality);
+          // If still large (> 65KB base64), step down dimensions/quality once more
+          if (out.length > 65000) {
+            const c2 = document.createElement("canvas");
+            c2.width = Math.max(1, Math.round(w * 0.72));
+            c2.height = Math.max(1, Math.round(h * 0.72));
+            const ctx2 = c2.getContext("2d");
+            ctx2.drawImage(canvas, 0, 0, c2.width, c2.height);
+            out = c2.toDataURL("image/jpeg", 0.58);
+          }
+          resolve(out);
+        };
+        img.onerror = () => resolve(dataUrl);
+        img.src = dataUrl;
+      });
+    }
+
+    // 15-Slot Photo Manager Modal
+    const photoMgrModal = document.getElementById("photoMgrModal");
+    const mgrSlotsGrid = document.getElementById("mgrSlotsGrid");
+    const singleSlotInput = document.getElementById("singleSlotInput");
+    const bulkSlotInput = document.getElementById("bulkSlotInput");
+    let activeSlotIndex = 0;
+
+    function renderMgrSlots() {
+      mgrSlotsGrid.innerHTML = "";
+      MEMORIES.forEach((m, idx) => {
+        const box = document.createElement("div");
+        box.className = "slot-item";
+        box.innerHTML = `
+          <div class="slot-top">
+            <img class="slot-thumb" src="${m.src}" alt="Slot ${idx + 1}">
+            <div class="slot-label">Photo ${String(idx + 1).padStart(2, "0")}</div>
+          </div>
+          <button type="button" class="slot-choose-btn" data-slot="${idx}">+ Choose Photo ${idx + 1}</button>
+          <input type="text" class="slot-cap-input" data-cap="${idx}" value="${m.cap.replace(/"/g, '&quot;')}" placeholder="Caption...">
+        `;
+        mgrSlotsGrid.appendChild(box);
+      });
+
+      mgrSlotsGrid.querySelectorAll(".slot-choose-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          activeSlotIndex = Number(btn.getAttribute("data-slot"));
+          singleSlotInput.value = "";
+          singleSlotInput.click();
+        });
+      });
+
+      mgrSlotsGrid.querySelectorAll(".slot-cap-input").forEach(inp => {
+        inp.addEventListener("input", () => {
+          const i = Number(inp.getAttribute("data-cap"));
+          MEMORIES[i].cap = inp.value;
+          if (i === photoIdx) polaroidCap.textContent = inp.value;
+        });
+      });
+    }
+
+    singleSlotInput.addEventListener("change", (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = async (ev) => {
+        const idx = activeSlotIndex;
+        MEMORIES[idx].src = await compressImageDataUrl(ev.target.result);
+        renderMgrSlots();
+        setPhoto(idx);
+        await savePhotoSlotToCloud(idx, false);
+        showToast(`Photo ${String(idx + 1).padStart(2, "0")} saved to page!`);
+      };
+      reader.readAsDataURL(file);
+    });
+
+    document.getElementById("bulkSelectBtn").addEventListener("click", () => {
+      bulkSlotInput.value = "";
+      bulkSlotInput.click();
+    });
+
+    bulkSlotInput.addEventListener("change", async (e) => {
+      const files = Array.from(e.target.files || []).slice(0, 15);
+      if (!files.length) return;
+      setSyncStatus("Saving photos...");
+      for (let i = 0; i < files.length; i++) {
+        const raw = await new Promise((res) => {
+          const r = new FileReader();
+          r.onload = (ev) => res(ev.target.result);
+          r.readAsDataURL(files[i]);
+        });
+        MEMORIES[i].src = await compressImageDataUrl(raw);
+        await savePhotoSlotToCloud(i, false);
+      }
+      renderMgrSlots();
+      setPhoto(0);
+      setSyncStatus("Saved ✓");
+      showToast(`${files.length} photos saved to page!`);
+    });
+
+    function openPhotoManager() {
+      renderMgrSlots();
+      photoMgrModal.classList.add("open");
+    }
+    window.openPhotoManager = openPhotoManager;
+
+    async function closePhotoManager() {
+      photoMgrModal.classList.remove("open");
+      setPhoto(photoIdx);
+      await saveGiftToCloud(false);
+    }
+
+    document.getElementById("openMgrBtn").addEventListener("click", openPhotoManager);
+    document.getElementById("closeMgrBtn").addEventListener("click", closePhotoManager);
+    document.getElementById("saveCloseMgrBtn").addEventListener("click", async () => {
+      await closePhotoManager();
+      showToast("All photos & captions saved on this live page!");
+    });
+    photoMgrModal.addEventListener("click", closePhotoManager);
+
+    // Letter & PIN Editor Modal
+    const editorModal = document.getElementById("editorModal");
+    const editPinInput = document.getElementById("editPinInput");
+    const editGreetingInput = document.getElementById("editGreetingInput");
+    const editLetterTextarea = document.getElementById("editLetterTextarea");
+    const editorStatus = document.getElementById("editorStatus");
+
+    function openEditorModal() {
+      editPinInput.value = currentPin;
+      editGreetingInput.value = document.getElementById("letterGreeting").textContent;
+      editLetterTextarea.value = document.getElementById("letterText").textContent;
+      if (editorStatus) editorStatus.textContent = "";
+      editorModal.classList.add("open");
+    }
+    window.openEditorModal = openEditorModal;
+
+    function closeEditorModal() {
+      editorModal.classList.remove("open");
+    }
+
+    document.getElementById("openEditorBtn").addEventListener("click", openEditorModal);
+    document.getElementById("closeEditorBtn").addEventListener("click", closeEditorModal);
+    editorModal.addEventListener("click", closeEditorModal);
+
+    document.getElementById("saveEditorBtn").addEventListener("click", async () => {
+      const cleanedPin = (editPinInput.value || "").replace(/\D/g, "").slice(0, 4);
+      if (cleanedPin.length !== 4) {
+        if (editorStatus) editorStatus.textContent = "Please enter a 4-digit PIN (e.g. 1234)";
+        return;
+      }
+      currentPin = cleanedPin;
+      document.getElementById("pinHintLabel").textContent = currentPin;
+      document.getElementById("letterGreeting").textContent = editGreetingInput.value.trim() || "My Dearest Favorite Person,";
+      document.getElementById("letterText").textContent = editLetterTextarea.value.trim();
+      closeEditorModal();
+      await saveGiftToCloud(false);
+      showToast("Letter & 4-digit PIN saved!");
+    });
+
+    // Cloud Persistence split across main config + individual photo documents (stays well under 1MB limit)
+    let dbRef = null;
+    let giftDocRef = null;
+    let photosCollectionRef = null;
+    let isAuthed = false;
+
+    async function savePhotoSlotToCloud(index, notify = false) {
+      if (!isAuthed || !photosCollectionRef) return;
+      try {
+        setSyncStatus("Saving...");
+        const slotId = `photo_${String(index).padStart(2, "0")}`;
+        await setDoc(doc(photosCollectionRef, slotId), {
+          index,
+          cap: MEMORIES[index].cap,
+          src: MEMORIES[index].src,
+          updatedAt: Date.now()
+        });
+        setSyncStatus("Saved ✓");
+        if (notify) showToast(`Photo ${String(index + 1).padStart(2, "0")} saved!`);
+      } catch (err) {
+        console.error("Cloud photo save error:", err);
+        setSyncStatus("Save error");
+      }
+    }
+
+    async function saveGiftToCloud(notify = true) {
+      if (!isAuthed || !giftDocRef) return;
+      try {
+        setSyncStatus("Saving...");
+        await setDoc(giftDocRef, {
+          pin: currentPin,
+          greeting: document.getElementById("letterGreeting").textContent,
+          letter: document.getElementById("letterText").textContent,
+          recipientMode: isRecipientView,
+          updatedAt: Date.now()
+        });
+        if (photosCollectionRef) {
+          for (let i = 0; i < MEMORIES.length; i++) {
+            await setDoc(doc(photosCollectionRef, `photo_${String(i).padStart(2, "0")}`), {
+              index: i,
+              cap: MEMORIES[i].cap,
+              src: MEMORIES[i].src,
+              updatedAt: Date.now()
+            });
+          }
+        }
+        setSyncStatus("Saved ✓");
+        if (notify) showToast("Saved directly to this live page!");
+      } catch (err) {
+        console.error("Cloud save error:", err);
+        setSyncStatus("Check connection");
+        if (notify) showToast("Could not save — try smaller photos");
+      }
+    }
+
+    document.getElementById("saveCloudBtn").addEventListener("click", () => saveGiftToCloud(true));
+
+    async function initCloudSync() {
+      try {
+        if (typeof __firebase_config === "undefined" || !__firebase_config) {
+          setSyncStatus("Local Session");
+          return;
+        }
+        const appId = typeof __app_id !== "undefined" ? __app_id : "default-app-id";
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        dbRef = getFirestore(app);
+
+        if (typeof __initial_auth_token !== "undefined" && __initial_auth_token) {
+          await signInWithCustomToken(auth, __initial_auth_token);
+        } else {
+          await signInAnonymously(auth);
+        }
+        isAuthed = true;
+
+        const basePublicPath = ["artifacts", appId, "public", "data", "pretty_pink_gift_config"];
+        giftDocRef = doc(dbRef, ...basePublicPath, "main_gift");
+        photosCollectionRef = doc(dbRef, ...basePublicPath, "main_gift");
+        // Store each photo in a dedicated sub-document inside "photos" subcollection
+        const { collection } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+        photosCollectionRef = collection(dbRef, "artifacts", appId, "public", "data", "pretty_pink_gift_photos");
+
+        setSyncStatus("Loading...");
+
+        const snap = await getDoc(giftDocRef);
+        if (snap.exists()) {
+          const data = snap.data();
+          if (data.pin) {
+            currentPin = String(data.pin);
+            document.getElementById("pinHintLabel").textContent = currentPin;
+          }
+          if (data.greeting) {
+            document.getElementById("letterGreeting").textContent = data.greeting;
+          }
+          if (data.letter) {
+            document.getElementById("letterText").textContent = data.letter;
+          }
+          if (typeof data.recipientMode === "boolean") {
+            applyRecipientView(data.recipientMode);
+          }
+        }
+
+        for (let i = 0; i < MEMORIES.length; i++) {
+          const pSnap = await getDoc(doc(photosCollectionRef, `photo_${String(i).padStart(2, "0")}`));
+          if (pSnap.exists()) {
+            const pData = pSnap.data();
+            if (pData.cap) MEMORIES[i].cap = pData.cap;
+            if (pData.src) MEMORIES[i].src = pData.src;
+          }
+        }
+
+        setPhoto(0);
+        setSyncStatus("Synced ✓");
+      } catch (err) {
+        console.error("Cloud init error:", err);
+        setSyncStatus("Offline Mode");
+      }
+    }
+
+    initCloudSync();
+
+    // Lightbox Full View on Polaroid Click
+    function syncLightbox() {
+      const item = MEMORIES[photoIdx];
+      lbImg.src = item.src;
+      lbCaption.textContent = `${String(photoIdx + 1).padStart(2, "0")} / 15 — ${item.cap}`;
+    }
+
+    function openLightbox() {
+      syncLightbox();
+      lightbox.classList.add("open");
+    }
+
+    function closeLightbox() {
+      lightbox.classList.remove("open");
+    }
+
+    document.getElementById("polaroidCard").addEventListener("click", openLightbox);
+    document.getElementById("lbClose").addEventListener("click", closeLightbox);
+    lightbox.addEventListener("click", closeLightbox);
+    document.getElementById("lbPrev").addEventListener("click", () => setPhoto(photoIdx - 1));
+    document.getElementById("lbNext").addEventListener("click", () => setPhoto(photoIdx + 1));
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        if (lightbox.classList.contains("open")) closeLightbox();
+        if (photoMgrModal.classList.contains("open")) closePhotoManager();
+        if (editorModal.classList.contains("open")) closeEditorModal();
+      } else if (lightbox.classList.contains("open") && e.key === "ArrowRight") {
+        setPhoto(photoIdx + 1);
+      } else if (lightbox.classList.contains("open") && e.key === "ArrowLeft") {
+        setPhoto(photoIdx - 1);
+      }
+    });
+
+    function replayAll() {
+      noBtn.style.transform = "";
+      noTease.textContent = "";
+      document.getElementById("premiumEnvelope").classList.remove("opened");
+      document.getElementById("envStatusLabel").textContent = "✨ Tap the Wax Seal to Unfold Your Letter ✨";
+      document.getElementById("letterPaper").classList.remove("open");
+      setPhoto(0);
+      goToSlide(0);
+    }
+    window.replayAll = replayAll;
+  </script>
+</body>
+</html>
